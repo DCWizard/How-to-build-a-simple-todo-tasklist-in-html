@@ -9,7 +9,7 @@
 <body>
 <div style="display:flex;">
 <label>Title: </label>
-<input type="text" id="ToDoTitle" style="font-size: 1.50em;" onchange="SetTitle(event)" value="ToDo">
+<input type="text" id="ToDoTitle" style="font-size: 1.50em; width: 40%;" onchange="SetTitle(event)" value="ToDo">
 <button id="SavePageNow" onclick="SavePage(event)" style="font-size: 1.50em;">Save New File</button>
 <div style="padding:0 5em"></div>
 <button id="AddNewToDo" onclick="AddNewEntry(event)" style="font-size: 1.50em;">Add new ToDo</button>
@@ -17,18 +17,16 @@
 <br>
 
 
-<br><br><label>Todo: </label>
 <div id="TodoArea">
-
 </div>
 
 <br><br><label>Archive: </label>
 <div id="ArchiveArea">
 </div>
-</body>
+
 
 <script>
-function Trash  (ThisEvent){
+function Trash(ThisEvent){
   let ThisOtherArea       = document.getElementById("ArchiveArea");
   let HisFamily           = GetThisChildInfo  ("TodoArea", ThisEvent.target);
   if( ! HisFamily){
@@ -44,20 +42,17 @@ function Trash  (ThisEvent){
   let ThisFragment        = document.createDocumentFragment();
   for(let Indx = 0; Indx  < HisFamily.Children.length; Indx++){
     if(Indx              == (HisFamily.HisIndx)){
-      ; // SKIP 
-      ThisOtherArea.innerHTML += "\n"+HisFamily.Children[Indx].outerHTML;
+      ; // SKIP OR ARCHIVE
+      AppenCloneOf(ThisOtherArea, HisFamily.Children[Indx]);
     } else {
-  	  // I WANT MY RETURNS YOU MORE. WHEN I SAY CLONE I MEAN CLONE. THE RETURN SHOULD HAVE BEEN PART OF THE CHILD. 
-      // SOMETIMES THE DOM IS JUST DUMB, SO, BACK TO HTML. CALL ME WHEN YOU FIXED IT.
-  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+      AppenCloneOf(ThisFragment, HisFamily.Children[Indx]);
     }
   }
   HisFamily.Parent.innerHTML    = null;
   HisFamily.Parent.appendChild(ThisFragment);
   ApplyAllDragNDrop ();
 }
-function MoveDn (ThisEvent){
+function MoveDn(ThisEvent){
   let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
   if( ! HisFamily){
     return;
@@ -73,25 +68,20 @@ function MoveDn (ThisEvent){
     if((Indx             == (HisFamily.HisIndx))
     && (Indx              < HisFamily.Children.length -1)
     ){
-      // ThisFragment.appendChild(HisFamily.Children[Indx+1].cloneNode(true));
-  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
-      
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx+1].outerHTML);
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
-
+      AppenCloneOf(ThisFragment, HisFamily.Children[Indx+1]);
+      AppenCloneOf(ThisFragment, HisFamily.Children[Indx]);
     } else 
     if(Indx              == (HisFamily.HisIndx + 1)){
       ; // SKIP 
     } else {
-  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+  	  AppenCloneOf(ThisFragment, HisFamily.Children[Indx]);
     }
   }
   HisFamily.Parent.innerHTML    = null;
   HisFamily.Parent.appendChild(ThisFragment);
   ApplyAllDragNDrop ();
 }
-function MoveUp (ThisEvent){
+function MoveUp(ThisEvent){
   let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
   if( ! HisFamily){
     return;
@@ -102,35 +92,30 @@ function MoveUp (ThisEvent){
   if(HisFamily.Children.length  <= 1){
     return;
   }
-  // let TheReordering       = Array.from(HisFamily.Children);
   let ThisFragment        = document.createDocumentFragment();
 
   for(let Indx = 0; Indx  < HisFamily.Children.length; Indx++){
     if(Indx              == (HisFamily.HisIndx - 1)){
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx+1].outerHTML);
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
-  	  // ThisFragment.appendChild(HisFamily.Children[Indx+1].cloneNode(true));
-  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
+      AppenCloneOf(ThisFragment, HisFamily.Children[Indx+1]);
+      AppenCloneOf(ThisFragment, HisFamily.Children[Indx]);
     } else 
     if(Indx              == (HisFamily.HisIndx)){
       ; // SKIP 
     } else {
-  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
-      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+      AppenCloneOf(ThisFragment, HisFamily.Children[Indx]);
     }
   }
   HisFamily.Parent.innerHTML    = null;
   HisFamily.Parent.appendChild(ThisFragment);
   ApplyAllDragNDrop ();
 }
-function AddNewEntry    (){
-let ThisEntry = `\n<div style="display:flex;"><button onclick="OnDrag(event)" style="font-size: 1.250em;">🤚</button><button onclick="MoveUp(event)" style="font-size: 1.250em;">⏫</button><button onclick="MoveDn(event)" style="font-size: 1.250em;">⏬</button><input type="checkbox" style="height:1.75em; width:1.75em; "><textarea style="width: 90%; height: 1em; font-size: 1.75em; font-weight: bold;"></textarea><button onclick="Trash(event)" style="font-size: 1.250em;">🗑</button></div>`;
-let ThisChild = AddChildHtmlById ("TodoArea", ThisEntry);
+function AddNewEntry       (){
+let ThisEntry           = `<div style="display:flex;"><button onclick="OnDrag(event)" style="font-size: 1.250em;">🤚</button><button onclick="MoveUp(event)" style="font-size: 1.250em;">⏫</button><button onclick="MoveDn(event)" style="font-size: 1.250em;">⏬</button><input type="checkbox" style="height:1.75em; width:1.75em; "><textarea style="width: 90%; height: 1em; font-size: 1.75em; font-weight: bold;"></textarea><button onclick="Trash(event)" style="font-size: 1.250em;">🗑</button></div>`;
+let ThisChild           = AddChildHtmlById ("TodoArea", ThisEntry);
 
   ApplyDragger (ThisChild);
   ApplyDropper (ThisChild);
 }
-
 function OnAllowDrop    (ThisEvent)
 {
   let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
@@ -139,12 +124,16 @@ function OnAllowDrop    (ThisEvent)
   }
   ThisEvent.preventDefault();
 }
+// PREVENT MULTIPLE DROP FROM HAPPENING
+var MessageCount      = 0;
+var LastMessage       = null;
 function OnDrag         (ThisEvent){
 
   let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
   if( ! HisFamily){
     return;
   }
+  HisFamily.MessageCount = MessageCount++;
   ThisEvent.dataTransfer.setData('text', JSON.stringify(HisFamily));
 }
 function OnDrop         (ThisEvent, ThisDrop)
@@ -153,7 +142,12 @@ function OnDrop         (ThisEvent, ThisDrop)
   if( ! HisFamily){
     return;
   }
-  let ThatFamily      = JSON.parse(ThisEvent.dataTransfer.getData('text'));
+  let ThisText        = ThisEvent.dataTransfer.getData('text');
+  if(ThisText        == LastMessage){
+    return;
+  }
+  LastMessage         = ThisText;
+  let ThatFamily      = JSON.parse(ThisText);
   DropMove(ThatFamily, HisFamily);
   ThisEvent.preventDefault();
 }
@@ -161,14 +155,17 @@ function DropMove       (ThatFamily, HisFamily)
 {
   let ThatParent            = document.getElementById(ThatFamily.ParentId);
   let ThatChildHTML         = ThatParent.children[ThatFamily.HisIndx].outerHTML;
+  let ThatChild             = ThatParent.children[ThatFamily.HisIndx];
+  let RemoveIndx            = ThatFamily.HisIndx;  
+
   if((ThatFamily.ParentId  == HisFamily.ParentId)
   && (ThatFamily.HisIndx   == HisFamily.HisIndx)
   ){
     return;
   }
-  HisFamily.ThisChild.insertAdjacentHTML("beforebegin", ThatChildHTML);
+  // HisFamily.ThisChild.insertAdjacentHTML("beforebegin", ThatChildHTML); // DOESN'T WOKE PROPERLY
+  let ThisIns               = HisFamily.Parent.insertBefore(ThatChild.cloneNode(true), HisFamily.ThisChild);
 
-  let RemoveIndx            = ThatFamily.HisIndx;  
   if((ThatFamily.ParentId  == HisFamily.ParentId)
   && (ThatFamily.HisIndx    > HisFamily.HisIndx)
   ){
@@ -177,6 +174,7 @@ function DropMove       (ThatFamily, HisFamily)
   ThatParent.removeChild(ThatParent.children[RemoveIndx]);
   ApplyAllDragNDrop ();
 }
+
 
 function SetTitle(ThisEvent){
   SetPageTitle(ThisEvent.target.value);
@@ -252,6 +250,14 @@ function AddChildHtml       (ThisDomObj, ThisHtmlText)
       // THE EASY METHOD STILL: ThisDomObj.innerHTML += (ThisText);
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 }
+function AppenCloneOf       (ThisFragment, ThisChidren){
+
+  ThisFragment.appendChild(ThisChidren.cloneNode(true)); 
+
+  // THIS DID NOT WORK. ONLY PARTIALLY. WEIRD... THE TEXTAREA VALUE KEEP DISAPEARING!?
+  // AddChildHtml (ThisFragment, ThisChidren.outerHTML); 
+}
+
 function SetPageTitle       (ThisTitle)   {  return document.title = ThisTitle; } 
 function GetPageTitle       ()            {  return document.title;}
 function GetCurrentPageContent (){
@@ -284,7 +290,6 @@ function ApplyDropper (ThisItem){
   ThisItem.addEventListener('drop',     function (event) { OnDrop(event, ThisItem); } );
 }
 
-
 // STARTUP 
 function ApplyDragNDrop (TheseChildren){
 
@@ -303,4 +308,4 @@ function InitPage(){
 }
 InitPage();
 </script>
-</html>
+</body></html>
