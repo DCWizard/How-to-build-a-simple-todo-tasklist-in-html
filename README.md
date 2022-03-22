@@ -1,5 +1,6 @@
 # How-to-build-a-simple-todo-tasklist-in-html
 How to build a simple todo tasklist in html
+CodePen: https://codepen.io/dcwizard/pen/jOYMXZM
 
 In this project I share my codding of a  simple todo tasklist in html
 <br>
@@ -64,3 +65,6 @@ Just read the code. It's self commented.
 Enjoy. 
 
 DCWizard.
+
+
+
