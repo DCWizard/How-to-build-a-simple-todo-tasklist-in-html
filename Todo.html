@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo</title>
+</head>
+<body>
+<div style="display:flex;">
+<label>Title: </label>
+<input type="text" id="ToDoTitle" style="font-size: 1.50em;" onchange="SetTitle(event)" value="ToDo">
+<button id="SavePageNow" onclick="SavePage(event)" style="font-size: 1.50em;">Save New File</button>
+<div style="padding:0 5em"></div>
+<button id="AddNewToDo" onclick="AddNewEntry(event)" style="font-size: 1.50em;">Add new ToDo</button>
+</div>
+<br>
+
+
+<br><br><label>Todo: </label>
+<div id="TodoArea">
+
+</div>
+
+<br><br><label>Archive: </label>
+<div id="ArchiveArea">
+</div>
+</body>
+
+<script>
+function Trash  (ThisEvent){
+  let ThisOtherArea       = document.getElementById("ArchiveArea");
+  let HisFamily           = GetThisChildInfo  ("TodoArea", ThisEvent.target);
+  if( ! HisFamily){
+    HisFamily             = GetThisChildInfo  ("ArchiveArea", ThisEvent.target);
+      if( ! HisFamily){
+        return;
+      } 
+      ThisOtherArea       = document.getElementById("TodoArea");
+  }
+  if(HisFamily.Children.length  <= 0){
+    return;
+  }
+  let ThisFragment        = document.createDocumentFragment();
+  for(let Indx = 0; Indx  < HisFamily.Children.length; Indx++){
+    if(Indx              == (HisFamily.HisIndx)){
+      ; // SKIP 
+      ThisOtherArea.innerHTML += "\n"+HisFamily.Children[Indx].outerHTML;
+    } else {
+  	  // I WANT MY RETURNS YOU MORE. WHEN I SAY CLONE I MEAN CLONE. THE RETURN SHOULD HAVE BEEN PART OF THE CHILD. 
+      // SOMETIMES THE DOM IS JUST DUMB, SO, BACK TO HTML. CALL ME WHEN YOU FIXED IT.
+  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+    }
+  }
+  HisFamily.Parent.innerHTML    = null;
+  HisFamily.Parent.appendChild(ThisFragment);
+  ApplyAllDragNDrop ();
+}
+function MoveDn (ThisEvent){
+  let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
+  if( ! HisFamily){
+    return;
+  }
+  if(HisFamily.IsLast){
+    return;
+  }
+  if(HisFamily.Children.length  <= 1){
+    return;
+  }
+  let ThisFragment        = document.createDocumentFragment();
+  for(let Indx = 0; Indx  < HisFamily.Children.length; Indx++){
+    if((Indx             == (HisFamily.HisIndx))
+    && (Indx              < HisFamily.Children.length -1)
+    ){
+      // ThisFragment.appendChild(HisFamily.Children[Indx+1].cloneNode(true));
+  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
+      
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx+1].outerHTML);
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+
+    } else 
+    if(Indx              == (HisFamily.HisIndx + 1)){
+      ; // SKIP 
+    } else {
+  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+    }
+  }
+  HisFamily.Parent.innerHTML    = null;
+  HisFamily.Parent.appendChild(ThisFragment);
+  ApplyAllDragNDrop ();
+}
+function MoveUp (ThisEvent){
+  let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
+  if( ! HisFamily){
+    return;
+  }
+  if(HisFamily.IsFirst){
+    return;
+  }
+  if(HisFamily.Children.length  <= 1){
+    return;
+  }
+  // let TheReordering       = Array.from(HisFamily.Children);
+  let ThisFragment        = document.createDocumentFragment();
+
+  for(let Indx = 0; Indx  < HisFamily.Children.length; Indx++){
+    if(Indx              == (HisFamily.HisIndx - 1)){
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx+1].outerHTML);
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+  	  // ThisFragment.appendChild(HisFamily.Children[Indx+1].cloneNode(true));
+  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
+    } else 
+    if(Indx              == (HisFamily.HisIndx)){
+      ; // SKIP 
+    } else {
+  	  // ThisFragment.appendChild(HisFamily.Children[Indx].cloneNode(true));
+      AddChildHtml (ThisFragment, "\n"+HisFamily.Children[Indx].outerHTML);
+    }
+  }
+  HisFamily.Parent.innerHTML    = null;
+  HisFamily.Parent.appendChild(ThisFragment);
+  ApplyAllDragNDrop ();
+}
+function AddNewEntry    (){
+let ThisEntry = `\n<div style="display:flex;"><button onclick="OnDrag(event)" style="font-size: 1.250em;">🤚</button><button onclick="MoveUp(event)" style="font-size: 1.250em;">⏫</button><button onclick="MoveDn(event)" style="font-size: 1.250em;">⏬</button><input type="checkbox" style="height:1.75em; width:1.75em; "><textarea style="width: 90%; height: 1em; font-size: 1.75em; font-weight: bold;"></textarea><button onclick="Trash(event)" style="font-size: 1.250em;">🗑</button></div>`;
+let ThisChild = AddChildHtmlById ("TodoArea", ThisEntry);
+
+  ApplyDragger (ThisChild);
+  ApplyDropper (ThisChild);
+}
+
+function OnAllowDrop    (ThisEvent)
+{
+  let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
+  if( ! HisFamily){
+    return;
+  }
+  ThisEvent.preventDefault();
+}
+function OnDrag         (ThisEvent){
+
+  let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
+  if( ! HisFamily){
+    return;
+  }
+  ThisEvent.dataTransfer.setData('text', JSON.stringify(HisFamily));
+}
+function OnDrop         (ThisEvent, ThisDrop)
+{
+  let HisFamily       = GetHisFamilyInfo  (ThisEvent.target);
+  if( ! HisFamily){
+    return;
+  }
+  let ThatFamily      = JSON.parse(ThisEvent.dataTransfer.getData('text'));
+  DropMove(ThatFamily, HisFamily);
+  ThisEvent.preventDefault();
+}
+function DropMove       (ThatFamily, HisFamily)
+{
+  let ThatParent            = document.getElementById(ThatFamily.ParentId);
+  let ThatChildHTML         = ThatParent.children[ThatFamily.HisIndx].outerHTML;
+  if((ThatFamily.ParentId  == HisFamily.ParentId)
+  && (ThatFamily.HisIndx   == HisFamily.HisIndx)
+  ){
+    return;
+  }
+  HisFamily.ThisChild.insertAdjacentHTML("beforebegin", ThatChildHTML);
+
+  let RemoveIndx            = ThatFamily.HisIndx;  
+  if((ThatFamily.ParentId  == HisFamily.ParentId)
+  && (ThatFamily.HisIndx    > HisFamily.HisIndx)
+  ){
+    RemoveIndx++;
+  }
+  ThatParent.removeChild(ThatParent.children[RemoveIndx]);
+  ApplyAllDragNDrop ();
+}
+
+function SetTitle(ThisEvent){
+  SetPageTitle(ThisEvent.target.value);
+}
+function SavePage(ThisEvent){
+  let Tell = true;
+  SaveTextToFile(GetPageTitle() + ".html", GetCurrentPageContent(), Tell);
+}
+
+// HIGH LEVEL SUPPORT FUNCTIONS
+function GetHisFamilyInfo   (ThisChild){
+  let HisFamily           = GetThisChildInfo  ("TodoArea", ThisChild);
+  if( ! HisFamily){
+    HisFamily             = GetThisChildInfo  ("ArchiveArea", ThisChild);
+      if( ! HisFamily){
+        return null;
+      } 
+  }
+  return HisFamily;
+}
+// LOW LEVEL SUPPORT FUNCTIONS
+function GetThisChildInfo   (TheParentId, ThisChild){
+  let ThisParent          = ThisChild.parentElement;
+  let TheChildren         = null;
+  let IsFirst             = false;
+  let IsLast              = false;
+
+  while((ThisChild) && (ThisParent.id != TheParentId) ){ 
+    ThisChild             = ThisParent;
+    ThisParent            = ThisParent.parentElement;
+    if( ! ThisParent){
+      return null;
+    }
+  }
+  TheChildren             = ThisParent.children;
+  if(TheChildren.length  == 0){
+    return null;
+  }
+  let ThisIndx            = Array.prototype.indexOf.call(TheChildren, ThisChild);
+  if(ThisIndx            == 0){
+    IsFirst               = true;
+  } else 
+  if(ThisIndx            == (TheChildren.length - 1)){
+    IsLast                = true;
+  }
+  let ThisChildInfo       = {"Parent":ThisParent, "ParentId":ThisParent.id, "Children":TheChildren, "ThisChild":ThisChild, "HisIndx":ThisIndx, "IsFirst":IsFirst, "IsLast":IsLast};
+  return ThisChildInfo;
+}
+function AddChildHtmlById   (ThisId, ThisHtmlText)
+{
+let ThisDomObj = document.getElementById(ThisId);
+
+  if(ThisDomObj){
+    return AddChildHtml(ThisDomObj, ThisHtmlText);
+    // ThisDomObj.innerHTML += ThisHtmlText;
+  }
+}
+function AddChildHtml       (ThisDomObj, ThisHtmlText)
+{
+  // if(IsNull(ThisDomObj)){ErrorReport("DOM object null: ", ThisHtmlText); return null;}
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+  // MORE DIFFICULT METHOD SCREEWTHEM...
+  // FIRST CREATE A DUMB DUMB ELEMENT LIKE THIS:
+  var ThisChild = document.createElement('div'); // DOESN'T MATTER WHICH ELEMENT
+      // THEN APPEND THE CHILD DUMB DUMB LIKE THAT:
+      ThisDomObj.appendChild(ThisChild); 
+      // THEREFORE JUST REPLACE THE DUMB DUMB SUCKER OUTER HTML WITH YOUR HTML...
+      ThisChild.outerHTML = ThisHtmlText;
+      // VOILA!
+      return ThisDomObj.lastChild;
+  // THE ADVANTAGE OF THIS METHOD IS IT RETURNS THE NEW CHILD OBJECT.    
+  /////////////////////////////////////////////////////////////////////////////
+      // THE EASY METHOD STILL: ThisDomObj.innerHTML += (ThisText);
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+}
+function SetPageTitle       (ThisTitle)   {  return document.title = ThisTitle; } 
+function GetPageTitle       ()            {  return document.title;}
+function GetCurrentPageContent (){
+  return "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+}
+function SaveBlobToFile (ThisFilename, ThisBlob, Tell){
+var ThisUrl       = window.URL.createObjectURL(ThisBlob);    
+    
+  var anchor      = document.createElement("a");
+  anchor.href     = ThisUrl;
+  anchor.download = ThisFilename;
+  anchor.click();
+
+  window.URL.revokeObjectURL(ThisUrl);
+  // document.removeChild(anchor);
+  if(Tell)alert("Your file "+ThisFilename+" as been saved to your downloads folder.");
+}
+function SaveTextToFile (ThisFilename, ThisText, Tell){
+// var ThisFile      = new File([ThisText], ThisFilename, {type: "text/plain;charset=utf-8"});
+var ThisBlob      = new Blob([ThisText], {type: "text/plain;charset=utf-8"});
+
+  SaveBlobToFile (ThisFilename, ThisBlob, Tell);
+}
+function ApplyDragger (ThisItem){
+  ThisItem.draggable = true;
+  ThisItem.addEventListener('dragstart', event => OnDrag(event) );
+}
+function ApplyDropper (ThisItem){
+  ThisItem.addEventListener('dragover', event => OnAllowDrop(event) );
+  ThisItem.addEventListener('drop',     function (event) { OnDrop(event, ThisItem); } );
+}
+
+
+// STARTUP 
+function ApplyDragNDrop (TheseChildren){
+
+  for(let Indx = 0; Indx  < TheseChildren.length; Indx++){
+    ApplyDragger (TheseChildren[Indx].children[0]);
+    ApplyDropper (TheseChildren[Indx]);
+  }
+}
+function ApplyAllDragNDrop (){
+  ApplyDragNDrop(document.getElementById("TodoArea").children);
+  ApplyDragNDrop(document.getElementById("ArchiveArea").children);
+}
+function InitPage(){
+  document.getElementById("ToDoTitle").value = GetPageTitle();
+  ApplyAllDragNDrop ();
+}
+InitPage();
+</script>
+</html>
