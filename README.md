@@ -2,8 +2,10 @@
 How to build a simple todo tasklist in html
 
 In this project I share my codding of a  simple todo tasklist in html
-
+<br>
 Technique found in this simple code:
+<br>
+<br>
 
 About HTML Page:
 
@@ -12,7 +14,8 @@ How to get/set title of the page.
 How to save the page using JavaScript.
 
 How to get the current HTML content in a string. 
-
+<br>
+<br>
 
 Children element:
 
@@ -27,14 +30,16 @@ How to insertBefore using insertAdjacentHTML.
 How to get correct Child element without Id. 
 
 How to use Drag n' Drop feature to move element around.
-
+<br>
+<br>
 
 Misc. :
-
+<br>
 How to save text to a file.
 
 How to save blob to a file.
-
+<br>
+<br>
 
 How to use: 
 
@@ -47,12 +52,14 @@ Then just start using your local version of this saved HTML page.
 To update just use the browser save as... feature and overwrite the current file.
 
 To reload press F5 or CTRL-F5.
-
+<br>
+<br>
 
 The rest is pretty straight forward. 
 
 Just read the code. It's self commented. 
-
+<br>
+<br>
 
 Enjoy. 
 
