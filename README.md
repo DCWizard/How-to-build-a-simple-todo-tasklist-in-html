@@ -1,5 +1,5 @@
 # How-to-build-a-simple-todo-tasklist-in-html
-How to build a simple todo tasklist in html
+How to build a simple todo tasklist in HTML
 CodePen: https://codepen.io/dcwizard/pen/jOYMXZM
 
 In this project I share my codding of a  simple todo tasklist in html
@@ -12,7 +12,7 @@ About HTML Page:
 
 How to get/set title of the page.
 
-How to save the page using JavaScript.
+How to save the current HTML page using JavaScript.
 
 How to get the current HTML content in a string. 
 <br>
@@ -20,9 +20,11 @@ How to get the current HTML content in a string.
 
 Children element:
 
+How to add and remove attribute in javascript.
+
 How to add a new element as a children.
 
-How  to delete/trash or archive children element using HTML.
+How  to delete/trash or archive children element using javascript.
 
 How to move up/down children element. 
 
@@ -51,6 +53,7 @@ Just Change the name and save.
 Then just start using your local version of this saved HTML page. 
 
 To update just use the browser save as... feature and overwrite the current file.
+*The browser do not save properly you better use the save button instead.
 
 To reload press F5 or CTRL-F5.
 <br>
